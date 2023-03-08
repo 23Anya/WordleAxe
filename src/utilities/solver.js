@@ -72,7 +72,7 @@ function rankLetters (letters) {
 // that place in a word.  It contains any letter that could be
 // in that place
 //  wordList - an array of the possible words before execution
-export function getRemainingPossibiles(possibleArray, wordList, musts) {
+export function getRemainingPossibles(possibleArray, wordList, musts) {
   let possibileWords = [];
   wordList.forEach((word) => {
     if (isWordPossible(word, possibleArray, musts)){
@@ -97,9 +97,10 @@ export function getRemainingPossibiles(possibleArray, wordList, musts) {
 // desired result is it would remove l from first and last
 // places. 
 export function updatePossibles(possibleArray, requirements){
+  console.log(`Reqs passed to updatePossibles: ${JSON.stringify(requirements)}`)
   let newPossibles = [];
-  possibleArray.forEach(array => {
-    newPossibles.push([].concat(array));
+  possibleArray.forEach((array) => {
+    newPossibles.push([].concat(...array));
   });
   let reqIndices = [0, 1, 2, 3, 4];
 
@@ -153,7 +154,7 @@ export function updatePossibles(possibleArray, requirements){
 }
 
  
-// @param musts: array of objects [{letter: [#1, #2]], {letter: [#1, #2]}] of:
+// @param musts: object: {letter: [#1, #2], a: [0, 1], b: [1, 0]}
 // letter- a letter the word must contain
 // #1 - if nonzero, at least that many occurences
 // #2 - if nonzero, exactly that many occurences, no more
@@ -165,51 +166,59 @@ export function updatePossibles(possibleArray, requirements){
 // updateMusts takes a current list of musts and updates
 // it according to the reqs
 // reqs ex: [["l", 2], ["o", 1], ["y", 1], ["a", 1], ["l", 0]]
-// musts ex: [{"a": [1, 0]}, {"e": [0, 2]}]
+// musts ex: {"a": [1, 0], "e": [0, 2]}
+
+// musts should be: {a: [1,0], b: [0,2]}
+
 export function updateMusts(musts, reqs) {
+  // keep track of which letters in reqs have already been looked at
   let reqIndices = [0, 1, 2, 3, 4];
-  const newMusts = [];
-  musts.forEach((must, i) => newMusts[i].concat(must) );
+  const newMusts = {};
+  const mustKeys = Object.keys(musts);
+  mustKeys.forEach(key => {
+    newMusts[key] = musts[key];
+  } );
 
   while (reqIndices.length > 0) {
     const currentLetter = reqs[reqIndices[0]][0];
-    // get all indices of reqs with the same letter
-    const occurences = getAllIndices(reqs, currentLetter);
+    const letterInMusts = mustKeys.includes(currentLetter);
+
     let must = createMust(reqs, currentLetter);
-    let mustAlreadyExists = doesMustsContain(musts, currentLetter);
-    if (mustAlreadyExists) {
-      musts
+    const mustIsValid = !(must[0] === 0 && must[1] === 0);
+
+    // if the new must is not already in musts, add it
+    if (mustIsValid) {
+      if (!letterInMusts) { // a create must: ["a": 1, 0]
+        newMusts[currentLetter] = [must[0], must[1]];
+      } else if (newMusts[currentLetter][0] > 0 && must[0] > 0) {
+        newMusts[currentLetter] = [Math.max(newMusts[currentLetter][0], must[0]), 0];
+      } else if (newMusts[currentLetter][1] === 0) { // new must is exact
+        newMusts[currentLetter] = [0, must[1]];
+      }
     }
     
     //remove visited req indices
-    reqIndices = reqIndices.filter(originalIndex => requirements[originalIndex][0] !== currentLetter);
+    reqIndices = reqIndices.filter(originalIndex => reqs[originalIndex][0] !== currentLetter);
   }
-  // look at reqs[0], find all occurence of reqs[0][0].
-  // Get total, remove them from reqs. Are any reqs[0][1] 
-  // 0?  Then you have exact number.
-  // look at musts.  If it doesn't contain reqs[0][0], add it.
   return newMusts;
 }
 
-function doesMustsContain(musts, letter) {
-  if (musts.every(must => must[0] !== letter)) {return false} else {return true};
-};
-
 // reqs ex: [["l", 2], ["o", 1], ["y", 1], ["a", 1], ["l", 0]]
-// musts ex: [{"a": [1, 0]}, {"e": [0, 2]}]
+// @param letter: letter of must to be created
+// Creates a new 'must' object: e.g. {letter: [1, 0]}
 function createMust (reqs, letter) {
-  let must;
-  let count = 0;
-  let isExact = false;
-  reqs.forEach((req, i) => {
-    if (req[0] === letter && req[1] > 0) {
-      count++;
-    } else {
-      isExact =  true ;
-    };
+  let must, count = 0, isExact = false;
+  reqs.forEach(req => {
+    if (req[0] === letter) {
+      if (req[1] > 0) { // yellow or green
+        count++;
+      } else  { // grey square
+        isExact =  true ;
+      }
+    }
   });
 
-  must = isExact ? {letter: [0, count]} : {letter: [count, 0]};
+  must = isExact ? [0, count/* , letter */] : [count, 0]; //, letter];
   return must;
 };
 
@@ -227,25 +236,37 @@ function createMust (reqs, letter) {
 // one of these would be 0
 export function isWordPossible(word, possibles, musts) {
   let letters = [...word]; 
+  //console.log(`Evaluating ${word}: `)
   for (let i = 0; i < 5; i++) {
+    //!possibles[i].includes(letters[i]) && console.log(`Returning false because ${JSON.stringify(possibles[i])} of ${letters[i]} at position ${i}`)
     if (!possibles[i].includes(letters[i])) return false;
   };
-  let result = true;
-  musts.forEach(must => {
-    const occurences = getNumOccurences(letters, must[0]);
-    const keys = must.keys();
-    //console.log(`${must[keys[0]]} occurs ${occurences} times in ${word}`)
-    if (must[keys[0]][0] === 0) {
-      if (occurences !== must[keys[0]][1]) result = false;
-    } else if (must[keys[0]][1] === 0) {
-      if (occurences < must[keys[0]][0]) result = false;
-    } else {
-      console.log("Error in variable musts in isWordPossible.");
-      return;
+  const keys = Object.keys(musts);
+  let result = true, i = 0;
+  while (result && i < keys.length) {
+    const isExact = musts[keys[i]][0] > 0 ? false : true;
+    let times = getNumOccurences(letters, keys[i]);
+    if (!isExact && (times < musts[keys[i]][0])) {
+
+      //console.log(`Inexact: Returning false because musts is ${JSON.stringify(musts)}\nkey is ${keys[i]} and times is ${times}`)
+      result = false;
+    } else if (isExact && musts[keys[i]][1] !== times) { //if exact
+
+      //console.log(`Exact: Returning false because musts is ${JSON.stringify(musts)}\n word is ${word}\nkey is ${keys[i]} and times is ${times}`)
+      result = false;
     }
-  });
-    return result;
+    i++;
+  };
+  return result;
 };
+// it's not possible if: 
+// 1) it doesn't have the musts
+// for each must, if exact, does the word have exactly that many letter? no -> return false
+// if inexact, does the word contain at least that many of letter
+// 2) it doesn't fit the possibles 
+// for each array in possibles, is the letter in that place in 
+// the word in the array?
+// possibles.forEach((possible, index) => if !possible.includes(letters[index])) return false
 
 //  function to calculate the best guess
 //  how to decide. give possibilities a score
@@ -259,6 +280,7 @@ function getNumOccurences(arr, value) {
   })
   return numOccurences;
 };
+
 
 // get all indices of a given letter in a reqs array
 function getAllIndices(arr, value) {
@@ -279,12 +301,3 @@ function removeFromArray(arr, value) {
   arr.splice(i,1);
 };
 
-
-/* if (must[1] === 0) {
-  if (occurences !== must[2]) result = false;
-} else if (must[2] === 0) {
-  if (occurences < must[1]) result = false;
-} else {
-  console.log("Error in variable musts in isWordPossible.");
-  return;
-} */

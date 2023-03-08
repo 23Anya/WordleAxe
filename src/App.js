@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { guessList } from './constants/WordleGuesses';
 import { answerList } from './constants/WordleAnswers';
 import Tests from './utilities/Tests';
 import Styles from './App.css';
 import { getWordsStats } from './utilities/solver';
+import Solve from './components/solve/Solve';
 
 function App() {
   let words = answerList;
@@ -29,13 +30,11 @@ function App() {
   return (
     <div className="App">
       <h1>Let's solve a wordle!</h1>
-      <span>Please enter the word: </span>
-      <input></input>
       <p><button onClick={showWords}>Show Me The Words</button></p>
       <p><button onClick={showStats}>Show Me The Stats</button></p>
       <hr />
-       
-      {words && <Tests wordList={words}/>}
+      <Solve />
+      {/*words && <Tests wordList={words}/>*/}
     </div>
   );
 }
