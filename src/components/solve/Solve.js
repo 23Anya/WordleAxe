@@ -6,7 +6,7 @@ import { initialPossibles } from '../../constants/letterConstants';
 import WordleSteps from '../wordle-steps/WordleSteps';
 
 function Solve(  ) {
-  let musts = [];
+  let musts = useRef([]);
   let reqs = useRef([["s", 0],["t", 0],["a", 0],["r", 0],["e", 0]]);
   let possibles = [[],[],[],[],[]];
   initialPossibles.forEach((array, i) => {
@@ -17,13 +17,11 @@ function Solve(  ) {
   const [steps, setSteps] = useState([ <WordleSteps reqs={reqs} />]);
   
   const update = () => {
-    console.log(`updating: musts: ${JSON.stringify(musts)}, reqs: ${JSON.stringify(reqs.current)}`)
-    musts = solver.updateMusts(musts, reqs.current);
+    console.log(`updating: musts: ${JSON.stringify(musts.current)}, reqs: ${JSON.stringify(reqs.current)}`)
+    musts.current = solver.updateMusts(musts.current, reqs.current);
     possibles = solver.updatePossibles(possibles, reqs.current);
-    setUpdatedWords(solver.getRemainingPossibles(possibles, updatedWords, musts));
-    setSteps(prevSteps => [prevSteps].concat([ 
-    <WordleSteps reqs={reqs}  />
-    ]));
+    setUpdatedWords(solver.getRemainingPossibles(possibles, updatedWords, musts.current));
+    setSteps(<WordleSteps reqs={reqs}  />);
   }
   console.log(`reqs in Solve: ${JSON.stringify(reqs.current)}`)
   return ( 

@@ -73,6 +73,7 @@ function rankLetters (letters) {
 // in that place
 //  wordList - an array of the possible words before execution
 export function getRemainingPossibles(possibleArray, wordList, musts) {
+  console.log(`Passed to getRemainingPossibles: musts: ${JSON.stringify(musts)}`)
   let possibileWords = [];
   wordList.forEach((word) => {
     if (isWordPossible(word, possibleArray, musts)){
@@ -171,6 +172,7 @@ export function updatePossibles(possibleArray, requirements){
 // musts should be: {a: [1,0], b: [0,2]}
 
 export function updateMusts(musts, reqs) {
+  console.log(`To updateMusts: musts - ${JSON.stringify(musts)}, reqs - ${JSON.stringify(reqs)}`)
   // keep track of which letters in reqs have already been looked at
   let reqIndices = [0, 1, 2, 3, 4];
   const newMusts = {};
