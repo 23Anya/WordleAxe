@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 function WordleSteps( { reqs } ) {
   // reqs ex: [["l", 2], ["o", 1], ["y", 1], ["a", 1], ["l", 0]] 
   useEffect(() => {
-    reqs = [["s", 0],["t", 0],["a", 0],["r", 0],["e", 0]];
+    reqs.current = [["s", 0],["t", 0],["a", 0],["r", 0],["e", 0]];
   }, [])
-  console.log(`reqs: ${JSON.stringify(reqs)}`)
+  console.log(`reqs: ${JSON.stringify(reqs.current)}`)
   return ( 
     <div className={styles.container}>
       <div className={styles.guessContainer}>
@@ -19,7 +19,7 @@ function WordleSteps( { reqs } ) {
           <LetterSelect index={4} reqs={reqs} />
         </div>
         <div className={styles.space}></div>
-      <button type="button" className={styles.button} onClick={() => console.log(`Reqs are ${JSON.stringify(reqs)}`)}>Get reqs</button>
+      <button type="button" className={styles.button} onClick={() => console.log(`Reqs are ${JSON.stringify(reqs.current)}`)}>Get reqs</button>
       </div>
     </div>   
   );
@@ -31,16 +31,8 @@ function LetterSelect( {index, reqs}) {
   const changeResult = () => {
     const i = colors.indexOf(resultColor);
     const newColor = colors[(i + 1) % 3];
-    /* const newReqs = reqs.map((req, i) => {
-      if (i === index) {
-        return [req[0], (i + 1) % 3];
-      } else {
-        return [req[0], req[1]];
-      }
-    })
-    setReqs(newReqs); */
-    reqs[index][1] = (i + 1) % 3;
-    console.log(`reqs in LetterSelect: ${JSON.stringify(reqs)}`)
+    reqs.current[index][1] = (i + 1) % 3;
+    console.log(`reqs in LetterSelect: ${JSON.stringify(reqs.current)}`)
     setResultColor(newColor);
   };
   return ( 
@@ -48,8 +40,8 @@ function LetterSelect( {index, reqs}) {
       <div className={styles.guessBox}
         style={{backgroundColor: resultColor}}>
         <select
-          defaultValue={reqs[index][0]}
-          onChange={(e) => reqs[index][0] = e.target.value}
+          defaultValue={reqs.current[index][0]}
+          onChange={(e) => reqs.current[index][0] = e.target.value}
         >
           {alphabetArray.map(letter =>
             <option 
