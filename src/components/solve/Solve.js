@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react';
+import { React, useRef, useState } from 'react';
 import * as solver from "../../utilities/solver";
 import styles from './Solve.module.css';
 import { answerList } from '../../constants/WordleAnswers';
@@ -7,7 +7,7 @@ import WordleSteps from '../wordle-steps/WordleSteps';
 
 function Solve(  ) {
   let musts = [];
-  let reqs = [["s", 0],["t", 0],["a", 0],["r", 0],["e", 0]];
+  let reqs = useRef([["s", 0],["t", 0],["a", 0],["r", 0],["e", 0]]);
   let possibles = [[],[],[],[],[]];
   initialPossibles.forEach((array, i) => {
     array.forEach(letter => possibles[i].push(letter))
@@ -17,15 +17,15 @@ function Solve(  ) {
   const [steps, setSteps] = useState([ <WordleSteps reqs={reqs} />]);
   
   const update = () => {
-    console.log(`updating: musts: ${JSON.stringify(musts)}, reqs: ${JSON.stringify(reqs)}`)
-    musts = solver.updateMusts(musts, reqs);
-    possibles = solver.updatePossibles(possibles, reqs);
+    console.log(`updating: musts: ${JSON.stringify(musts)}, reqs: ${JSON.stringify(reqs.current)}`)
+    musts = solver.updateMusts(musts, reqs.current);
+    possibles = solver.updatePossibles(possibles, reqs.current);
     setUpdatedWords(solver.getRemainingPossibles(possibles, updatedWords, musts));
     setSteps(prevSteps => [prevSteps].concat([ 
     <WordleSteps reqs={reqs}  />
     ]));
   }
-  console.log(`reqs in Solve: ${JSON.stringify(reqs)}`)
+  console.log(`reqs in Solve: ${JSON.stringify(reqs.current)}`)
   return ( 
     <div className={styles.container}>
     <h1>Please enter the results of your guesses below</h1>
