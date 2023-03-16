@@ -4,6 +4,16 @@ export function solve (word) {
 
 }
 
+export function getRecommendation (wordList) {
+
+}
+
+// for each remaining word
+// for each spot 5
+// for each color 3
+// which comes the closest to dividing in half?
+// 
+
 export function getWordsStats(wordArray) {
   
   const letterCount = [
@@ -73,14 +83,12 @@ function rankLetters (letters) {
 // in that place
 //  wordList - an array of the possible words before execution
 export function getRemainingPossibles(possibleArray, wordList, musts) {
-  console.log(`Passed to getRemainingPossibles: musts: ${JSON.stringify(musts)}`)
   let possibileWords = [];
   wordList.forEach((word) => {
     if (isWordPossible(word, possibleArray, musts)){
       possibileWords.push(word);
     };
   })
-  //console.log(`Possible words length: ${possibileWords.length}`)
   return possibileWords;
 }
 
@@ -98,7 +106,6 @@ export function getRemainingPossibles(possibleArray, wordList, musts) {
 // desired result is it would remove l from first and last
 // places. 
 export function updatePossibles(possibleArray, requirements){
-  console.log(`Reqs passed to updatePossibles: ${JSON.stringify(requirements)}`)
   let newPossibles = [];
   possibleArray.forEach((array) => {
     newPossibles.push([].concat(...array));
@@ -172,7 +179,6 @@ export function updatePossibles(possibleArray, requirements){
 // musts should be: {a: [1,0], b: [0,2]}
 
 export function updateMusts(musts, reqs) {
-  console.log(`To updateMusts: musts - ${JSON.stringify(musts)}, reqs - ${JSON.stringify(reqs)}`)
   // keep track of which letters in reqs have already been looked at
   let reqIndices = [0, 1, 2, 3, 4];
   const newMusts = {};
@@ -238,9 +244,7 @@ function createMust (reqs, letter) {
 // one of these would be 0
 export function isWordPossible(word, possibles, musts) {
   let letters = [...word]; 
-  //console.log(`Evaluating ${word}: `)
   for (let i = 0; i < 5; i++) {
-    //!possibles[i].includes(letters[i]) && console.log(`Returning false because ${JSON.stringify(possibles[i])} of ${letters[i]} at position ${i}`)
     if (!possibles[i].includes(letters[i])) return false;
   };
   const keys = Object.keys(musts);
@@ -250,11 +254,9 @@ export function isWordPossible(word, possibles, musts) {
     let times = getNumOccurences(letters, keys[i]);
     if (!isExact && (times < musts[keys[i]][0])) {
 
-      //console.log(`Inexact: Returning false because musts is ${JSON.stringify(musts)}\nkey is ${keys[i]} and times is ${times}`)
       result = false;
     } else if (isExact && musts[keys[i]][1] !== times) { //if exact
 
-      //console.log(`Exact: Returning false because musts is ${JSON.stringify(musts)}\n word is ${word}\nkey is ${keys[i]} and times is ${times}`)
       result = false;
     }
     i++;
@@ -286,10 +288,8 @@ function getNumOccurences(arr, value) {
 
 // get all indices of a given letter in a reqs array
 function getAllIndices(arr, value) {
-  //console.log(`Array to getallindices: ${JSON.stringify(arr)}, value: ${value}`)
   let indices = [];
   arr.forEach((elem, i) => {
-    //console.log(`Elem[${i}]: ${elem[i]} ${JSON.stringify(elem)}`)
     if (elem[0] === value) indices.push(i);
   });
   return indices;

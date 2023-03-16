@@ -2,7 +2,7 @@ import styles from './WordleSteps.module.css';
 import { alphabetArray } from '../../constants/letterConstants'
 import { useEffect, useState } from 'react';
 
-function WordleSteps( { reqs } ) {
+function WordleSteps( { reqs, setReqs } ) {
   // reqs ex: [["l", 2], ["o", 1], ["y", 1], ["a", 1], ["l", 0]] 
   useEffect(() => {
     reqs.current = [["s", 0],["t", 0],["a", 0],["r", 0],["e", 0]];
@@ -12,11 +12,11 @@ function WordleSteps( { reqs } ) {
     <div className={styles.container}>
       <div className={styles.guessContainer}>
         <div className={styles.border}>
-          <LetterSelect index={0} reqs={reqs} />
-          <LetterSelect index={1} reqs={reqs} />
-          <LetterSelect index={2} reqs={reqs} />
-          <LetterSelect index={3} reqs={reqs} />
-          <LetterSelect index={4} reqs={reqs} />
+          <LetterSelect index={0} reqs={reqs} setReqs={setReqs}/>
+          <LetterSelect index={1} reqs={reqs} setReqs={setReqs}/>
+          <LetterSelect index={2} reqs={reqs} setReqs={setReqs}/>
+          <LetterSelect index={3} reqs={reqs} setReqs={setReqs}/>
+          <LetterSelect index={4} reqs={reqs} setReqs={setReqs}/>
         </div>
         <div className={styles.space}></div>
       </div>
@@ -24,22 +24,17 @@ function WordleSteps( { reqs } ) {
   );
 };
 //reqs = [["a", 0],["a", 0],["a", 0],["a", 0],["a", 0]]
-function LetterSelect( {index, reqs}) {
-  const letterRegX = /[a-zA-Z]{0,1}/;
+function LetterSelect( {index, reqs, setReqs}) {
   const colors = ["rgb(160, 160, 160)", "orange", "green"];
-  const [letter, setLetter] = useState(reqs.current[index][0]);
   const [resultColor, setResultColor] = useState(colors[0]);
-  console.log(`letter select ${index} rendered`)
-
-  useEffect(() =>{
-    setLetter(reqs.current[index][0]);
-    return;
-  })
-
   const changeResult = () => {
     const i = colors.indexOf(resultColor);
     const newColor = colors[(i + 1) % 3];
-    reqs.current[index][1] = (i + 1) % 3;
+    const newReqs = reqs.map((req, i) => { return (
+      i === index ? [req[0], (i + 1) % 3] :
+      [req[0], req[1]])
+    });
+    setReqs(newReqs);
     console.log(`reqs in LetterSelect: ${JSON.stringify(reqs)}`)
     setResultColor(newColor);
   };
@@ -48,28 +43,23 @@ function LetterSelect( {index, reqs}) {
     <div className={styles.column}>
       <div className={styles.guessBox}
         style={{backgroundColor: resultColor}}>
-        <input
-          className={styles.letter}
-          value={letter.toUpperCase()}
-          maxLength={1}
-          onClick={(e) => e.target.select()}
+        <select
+          defaultValue={reqs[index][0]}
           onChange={(e) => {
-            setLetter(e.target.value);
-            reqs.current[index][0] = (letterRegX.test(e.target.value)) ? 
-            e.target.value : reqs.current[index][0];
+            const newReqs = reqs.map((req, i) => { return (
+              i === index ? [e.target.value, req[1]] :
+              [req[0], req[1]])
+            });
+            setReqs(newReqs);
           }}
-        />
-        {/* <select
-          defaultValue={reqs.current[index][0]}
-          onChange={(e) => reqs.current[index][0] = e.target.value}
-        >
+        >{/* reqs[index][0] = e.target.value */}
           {alphabetArray.map(letter =>
             <option 
               key={letter} 
               value={letter}
             >{letter.toUpperCase()}</option>
           )}
-        </select> */}
+        </select>
       </div>
       <div 
         className={styles.resultBox} 

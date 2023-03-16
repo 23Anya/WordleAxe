@@ -1,3 +1,7 @@
+:root {
+  --borderColor: rgb(2, 2, 113);
+} 
+
 .container {
   display: flex;
   flex-direction: column;
@@ -8,7 +12,7 @@
   padding: 1rem;
 }
 
-select {
+select, input {
   background-color: transparent;
   border: none
 }
@@ -46,23 +50,34 @@ h1 {
 .guessBox {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   color: grey;
   background-color: lightgrey;
-  border: 1px solid blue;
-  height: 2.5rem;
+  border-left: 1px solid var(--borderColor);
+  border-right: 1px solid var(--borderColor);
+  height: 1.5rem;
   width: 3rem;
 }
 
+.letter {
+  text-align: center;
+  width: 1rem;
+}
+
 .resultBox {
-  height: 2rem;
+  height: 1.2rem;
   width: 3rem;
-  border: 1px solid blue;
+  border-collapse: separate;
+  border-left: 1px solid var(--borderColor);
+  border-right: 1px solid var(--borderColor);
 }
 
 .border {
   display: flex;
   flex-direction: row;
-  border: 2px solid blue;
+  border-top: 2px solid var(--borderColor);
+  border-bottom: 2px solid var(--borderColor);
+  border-left: 1px solid var(--borderColor);
+  border-right: 1px solid var(--borderColor);
   margin: 2px;
 }
